@@ -30,4 +30,36 @@ describe Ifdef::Rewriter, "#process" do
   it "replaces then branch in unless statement with nil" do
     run_example("unless_statement")
   end
+
+  it "replaces else branch in inline if statement with nil" do
+    run_example("inline_if_statement")
+  end
+
+  it "replaces then branch in inline unless statement with nil" do
+    run_example("inline_unless_statement")
+  end
+
+  it "replaces else branch in ternary statement with nil" do
+    run_example("ternary_statement")
+  end
+
+  it "finds statements nested in other code" do
+    run_example("deeply_nested")
+  end
+
+  it "if replaces false branches in elsif sections" do
+    run_example("elsif_statement")
+  end
+
+  it "merges overlapping replacements" do
+    run_example("overlapping")
+  end
+
+  it "allows for multiple truth statements" do
+    run_example("multiple_truth_statements")
+  end
+
+  it "ignores if statements where truth is ambiguous" do
+    run_example("ambiguous_if_statement")
+  end
 end
