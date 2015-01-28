@@ -12,12 +12,12 @@ end
 describe Ifdef::Truth, "#parse_hash" do
   subject { Ifdef::Truth }
 
-  it "returns a hash whose values are true/false" do
+  it "returns a hash whose values are :true/:false" do
     hash = {
       "true" => ["true_statement"]
     }
     subject.parse_hash(hash).values.each do |value|
-      expect(value).to eq(true).or(false)
+      expect(value).to eq(:true).or(:false)
     end
   end
 
