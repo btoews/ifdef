@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+$:.unshift File.expand_path('../../lib', __FILE__)
+
+begin
+  # Silence Parser version warnings
+  require "stringio"
+  stderr_bak, $stderr = $stderr, StringIO.new
+  require "parser/current"
+ensure
+  $stderr = stderr_bak
+end
+require "optparse"
+require "ifdef"
+
+truth = {
+  "true" => [],
+  "false" => []
+}
+
+optparser = OptionParser.new do |opts|
+  opts.banner = "Usage: ifdef [options] file"
+
+  opts.on("-a", "--true", "=MANDATORY", Array, "A comma separated list of statements to treat as true") do |t|
+    truth["true"] += t
+  end
+
+  opts.on("-b", "--false", "=MANDATORY", Array, "A comma separated list of statements to treat as false") do |f|
+    truth["false"] += f
+  end
+
+  opts.on("-c", "--config", "=MANDATORY", String, "The path to a JSON truth config file") do |c|
+    truth.merge!(JSON.parse(File.read(c)))
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+optparser.parse!
+
+abort(optparser.help) unless file = ARGV.first
+source = File.read(file)
+ast    = Ifdef.parse(source)
+buffer = Parser::Source::Buffer.new(file)
+buffer.source = source
+
+truth    = Ifdef::Truth.parse_hash(truth)
+rewriter = Ifdef::Rewriter.new(truth)
+
+puts rewriter.rewrite(buffer, ast)
